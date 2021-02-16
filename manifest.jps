@@ -3,7 +3,8 @@ logo: https://download.jelastic.com/public.php?service=files&t=1aeae1077d5d131cd
 targetNodes:
   targetNodes: 
   nodeGroup: 'cp, bl, storage'
-
+globals:
+  message: ""
 description:
   short: Add, remove FTP user (to Home Directory [webroot/]). User password reset.
   en: Add, remove and manage multiple FTP users' accounts, defining the separate server
@@ -39,6 +40,10 @@ menu:
   caption: Change the FTP user password
   action: resetUser
   successText: The user password was changed.
+
+- confirmText: List all FTP users?
+  caption: List FTP users
+  action: listUser
 
 settings:
   addSettings:
@@ -109,6 +114,10 @@ categories:
 success: The operation finished successfully
 homepage: https://docs.jelastic.com/ftp-ftps-support
 actions:
+appendMessage:
+  setGlobals:
+    message: ${globals.message}${this}
+
   addUser:
     cmd [${targetNodes[0].nodeType}]:
     - if [ "${targetNodes.nodeType}" == "storage" ]; then defaultPath="/var/ftp/"; else defaultPath="/var/ftp/"; fi
@@ -130,4 +139,15 @@ actions:
     cmd [${targetNodes[0].nodeType}]:
     - echo '${this.username}:${this.password}' | chpasswd
     user: root
+  listUser:
+   - setGlobals:
+     - message: ""
+     cmd [${targetNodes[0].nodeType}]:
+      - /usr/bin/cat /etc/passwd | grep 700 ;
+     user: root
+   - appendMessage: ${response.out}
+   - message: ${globals.message}
+     script: |
+        return {result: 2308, message: message.replace(/\n/g, '  \n')}
+
 version: '0.4'
