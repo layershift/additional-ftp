@@ -1,2 +1,1 @@
-# additional-ftp
-Create and manage additional FTP users
+Replaced by [ftp-users](https://github.com/layershift/ftp-users) addon
